@@ -3,11 +3,13 @@
 Voice Input Tool - Windows Client
 Receives text from Android device via USB serial and inputs it at cursor position.
 
-Features:
-- Auto-reconnect on USB disconnect
-- Configurable settings via config.json
-- Logging to file
-- Support for Unicode/Chinese text input
+Features (Round 2):
+- Auto-reconnect with exponential backoff
+- Log rotation for persistent debugging
+- Enhanced Chinese/Unicode input stability with retry mechanism
+- Text post-processing (auto-punctuation, auto-enter)
+- Command-line arguments support
+- Better device detection
 """
 
 import serial
@@ -18,6 +20,7 @@ import threading
 import os
 import json
 import logging
+import argparse
 from typing import Optional, List, Dict
 from pathlib import Path
 
@@ -39,17 +42,30 @@ DEFAULT_CONFIG = {
         "parity": "N",
         "stopbits": 1,
         "retry_interval": 2,
-        "max_retries": 0  # 0 = infinite retries
+        "max_retries": 0,
+        "exponential_backoff": True,
+        "max_retry_interval": 60
     },
     "input": {
         "type_interval": 0.01,
-        "enable_clipboard": True  # Use clipboard for Chinese text
+        "enable_clipboard": True,
+        "retry_count": 3,
+        "retry_delay": 0.2,
+        "auto_enter_after_ms": 0,
+        "post_process": {
+            "trim_whitespace": True,
+            "auto_punctuate": False,
+            "punctuation_marks": "。！？；："
+        }
     },
     "logging": {
         "level": "INFO",
-        "file": "voice_input_client.log"
+        "file": "voice_input_client.log",
+        "max_bytes": 1048576,  # 1MB
+        "backup_count": 3
     }
 }
+
 
 class Config:
     """Configuration manager for VoiceInputTool client."""
@@ -90,17 +106,30 @@ class Config:
             else:
                 return default
         return result
+    
+    def update(self, **kwargs):
+        """Update config with key-value pairs."""
+        self.config.update(kwargs)
 
 
 class VoiceInputClient:
-    def __init__(self, config_path: str = "config.json"):
+    def __init__(self, config_path: str = "config.json", args=None):
+        self.args = args or {}
         self.config = Config(config_path)
+        
+        # Override config with command-line arguments
+        if self.args.get('baudrate'):
+            self.config.config.setdefault('serial', {})['baudrate'] = self.args.get('baudrate')
+        if self.args.get('log_level'):
+            self.config.config.setdefault('logging', {})['level'] = self.args.get('log_level')
+        
         self._setup_logging()
         
         self.serial_port: Optional[serial.Serial] = None
         self.is_running = False
         self.connected_device = None
         self.retry_count = 0
+        self.current_retry_interval = 2
         
         # Keyboard controller for text input
         if PYINPUT_AVAILABLE:
@@ -110,20 +139,28 @@ class VoiceInputClient:
             self.logger.warning("pynput not available, falling back to pyautogui")
     
     def _setup_logging(self):
-        """Setup logging to file and console."""
+        """Setup logging with rotation to file and console."""
         log_level = self.config.get("logging", "level", default="INFO")
         log_file = self.config.get("logging", "file", default="voice_input_client.log")
+        max_bytes = self.config.get("logging", "max_bytes", default=1048576)
+        backup_count = self.config.get("logging", "backup_count", default=3)
         
         # Create logger
         self.logger = logging.getLogger("VoiceInputTool")
         self.logger.setLevel(getattr(logging, log_level.upper()))
         
-        # Clear existing handlers
-        self.logger.handlers.clear()
+        # Prevent duplicate handlers
+        if self.logger.handlers:
+            self.logger.handlers.clear()
         
-        # File handler
+        # File handler with rotation
         try:
-            file_handler = logging.FileHandler(log_file, encoding='utf-8')
+            file_handler = logging.handlers.RotatingFileHandler(
+                log_file,
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding='utf-8'
+            )
             file_handler.setFormatter(
                 logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
             )
@@ -142,15 +179,34 @@ class VoiceInputClient:
         """Find the VoiceInputTool USB device."""
         ports = serial.tools.list_ports.comports()
         
+        # Filter for USB serial devices
+        candidates = []
         for port in ports:
-            # Look for common USB-to-serial adapters
             description = port.description.lower() if port.description else ""
             device = port.device
             
-            # Check for known USB serial adapters
-            if any(keyword in description for keyword in ['usb', 'serial', 'ch340', 'cp210', 'ftdi', 'arduino']):
-                self.logger.info(f"Found potential device: {device} - {port.description}")
-                return device
+            # Check for known USB serial adapters (prioritized)
+            priority = 0
+            if 'ch340' in description:  # Most common for Android
+                priority = 3
+            elif 'cp210' in description:
+                priority = 2
+            elif 'ftdi' in description:
+                priority = 2
+            elif 'arduino' in description:
+                priority = 1
+            elif 'usb' in description and 'serial' in description:
+                priority = 1
+            
+            if priority > 0:
+                candidates.append((priority, device, port.description))
+        
+        if candidates:
+            # Return highest priority device
+            candidates.sort(key=lambda x: -x[0])
+            device = candidates[0][1]
+            self.logger.info(f"Found device: {device} - {candidates[0][2]}")
+            return device
                 
         self.logger.debug("No VoiceInputTool device found")
         return None
@@ -186,6 +242,7 @@ class VoiceInputClient:
             )
             self.connected_device = device_port
             self.retry_count = 0
+            self.current_retry_interval = serial_config.get("retry_interval", 2)
             self.logger.info(f"Connected to VoiceInputTool on {device_port}")
             return True
             
@@ -213,7 +270,8 @@ class VoiceInputClient:
             if not self.serial_port or not self.serial_port.is_open:
                 self._attempt_reconnect()
                 if not self.serial_port or not self.serial_port.is_open:
-                    time.sleep(self.config.get("serial", "retry_interval", default=2))
+                    self.logger.debug(f"Waiting {self.current_retry_interval}s before retry...")
+                    time.sleep(self.current_retry_interval)
                     continue
             
             try:
@@ -223,7 +281,18 @@ class VoiceInputClient:
                     
                     if line:
                         self.logger.info(f"Received text: {line}")
-                        self.input_text_at_cursor(line)
+                        
+                        # Post-process the text
+                        processed_text = self._post_process_text(line)
+                        
+                        # Input text at cursor
+                        self.input_text_at_cursor(processed_text)
+                        
+                        # Auto-enter if configured
+                        auto_enter = self.config.get("input", "auto_enter_after_ms", default=0)
+                        if auto_enter > 0:
+                            time.sleep(auto_enter / 1000.0)
+                            self._send_enter()
                         
             except UnicodeDecodeError:
                 self.logger.warning("Received invalid UTF-8 data, skipping...")
@@ -233,13 +302,37 @@ class VoiceInputClient:
                 self.disconnect()
                 continue
             except Exception as e:
-                self.logger.error(f"Unexpected error: {e}")
+                self.logger.error(f"Unexpected error: {e}", exc_info=True)
                 break
                 
-            time.sleep(0.1)  # Small delay to prevent excessive CPU usage
+            time.sleep(0.05)  # Small delay to prevent excessive CPU usage
+    
+    def _post_process_text(self, text: str) -> str:
+        """Post-process recognized text."""
+        post_config = self.config.get("input", "post_process", default={})
+        
+        result = text
+        
+        # Trim whitespace
+        if post_config.get("trim_whitespace", True):
+            result = result.strip()
+            # Remove excess internal whitespace
+            result = ' '.join(result.split())
+        
+        # Auto-punctuate (add punctuation if missing)
+        if post_config.get("auto_punctuate", False):
+            punctuation = post_config.get("punctuation_marks", "。！？；：")
+            if result and result[-1] not in punctuation:
+                # Simple heuristic: add 。 for statements, ？ or ！ for questions
+                if '吗' in result or '什么' in result or '怎么' in result or '?' in result.lower():
+                    result += '？'
+                else:
+                    result += '。'
+        
+        return result
     
     def _attempt_reconnect(self):
-        """Attempt to reconnect to the device."""
+        """Attempt to reconnect with exponential backoff."""
         serial_config = self.config.get("serial")
         max_retries = serial_config.get("max_retries", 0)
         
@@ -253,37 +346,81 @@ class VoiceInputClient:
         
         if self.connect_to_device():
             self.logger.info("Reconnected successfully")
+            # Reset retry interval on successful connection
+            self.current_retry_interval = serial_config.get("retry_interval", 2)
         else:
-            self.logger.debug("Reconnect failed, will retry...")
+            # Exponential backoff
+            if serial_config.get("exponential_backoff", True):
+                max_interval = serial_config.get("max_retry_interval", 60)
+                self.current_retry_interval = min(
+                    self.current_retry_interval * 2,
+                    max_interval
+                )
+            self.logger.debug(f"Reconnect failed, will retry in {self.current_retry_interval}s...")
+    
+    def _send_enter(self):
+        """Send Enter key."""
+        try:
+            if PYINPUT_AVAILABLE:
+                self.keyboard.press(keyboard.Key.enter)
+                self.keyboard.release(keyboard.Key.enter)
+            else:
+                pyautogui.press('enter')
+        except Exception as e:
+            self.logger.warning(f"Failed to send enter key: {e}")
+    
+    def _contains_unicode(self, text: str) -> bool:
+        """Check if text contains non-ASCII characters."""
+        return any(ord(c) > 127 for c in text)
     
     def input_text_at_cursor(self, text: str):
-        """Input text at the current cursor position."""
-        try:
-            # Add a small delay to ensure we're ready to type
-            time.sleep(0.1)
-            
-            input_config = self.config.get("input")
-            
-            # Check if we should use clipboard method for better Unicode support
-            if input_config.get("enable_clipboard", True):
-                self._input_via_clipboard(text)
-            elif PYINPUT_AVAILABLE:
-                self._input_via_pynput(text)
-            else:
-                self._input_via_pyautogui(text)
-            
-            self.logger.info("Successfully input text at cursor position")
-            
-        except Exception as e:
-            self.logger.error(f"Failed to input text: {e}")
+        """Input text at the current cursor position with retry mechanism."""
+        input_config = self.config.get("input")
+        retry_count = input_config.get("retry_count", 3)
+        retry_delay = input_config.get("retry_delay", 0.2)
+        
+        # Determine input method based on content
+        use_clipboard = input_config.get("enable_clipboard", True)
+        
+        # Try multiple input methods with retries
+        last_error = None
+        for attempt in range(retry_count):
+            try:
+                if use_clipboard and self._contains_unicode(text):
+                    # Use clipboard for Unicode/Chinese text
+                    if self._input_via_clipboard(text):
+                        self.logger.info(f"Successfully input text (clipboard, attempt {attempt + 1})")
+                        return
+                elif PYINPUT_AVAILABLE:
+                    # Use pynput for better compatibility
+                    if self._input_via_pynput(text):
+                        self.logger.info(f"Successfully input text (pynput, attempt {attempt + 1})")
+                        return
+                else:
+                    # Fallback to pyautogui
+                    if self._input_via_pyautogui(text):
+                        self.logger.info(f"Successfully input text (pyautogui, attempt {attempt + 1})")
+                        return
+                        
+            except Exception as e:
+                last_error = e
+                self.logger.warning(f"Input attempt {attempt + 1} failed: {e}")
+                
+            if attempt < retry_count - 1:
+                time.sleep(retry_delay)
+        
+        # All methods failed
+        self.logger.error(f"Failed to input text after {retry_count} attempts: {last_error}")
     
-    def _input_via_clipboard(self, text: str):
+    def _input_via_clipboard(self, text: str) -> bool:
         """Input text via clipboard (best for Unicode/Chinese)."""
         try:
-            # Save current clipboard
             import pyperclip
-            original_clipboard = pyperclip.paste()
-            
+        except ImportError:
+            self.logger.warning("pyperclip not available")
+            return False
+        
+        try:
             # Copy new text to clipboard
             pyperclip.copy(text)
             time.sleep(0.05)
@@ -298,32 +435,36 @@ class VoiceInputClient:
                 pyautogui.hotkey('ctrl', 'v')
             
             time.sleep(0.05)
+            return True
             
-            # Restore original clipboard (optional)
-            # pyperclip.copy(original_clipboard)
-            
-        except ImportError:
-            self.logger.warning("pyperclip not available, falling back to keyboard input")
-            self._input_via_pynput(text)
         except Exception as e:
-            self.logger.warning(f"Clipboard method failed: {e}, trying keyboard")
-            self._input_via_pynput(text)
+            self.logger.warning(f"Clipboard method failed: {e}")
+            raise
     
-    def _input_via_pynput(self, text: str):
+    def _input_via_pynput(self, text: str) -> bool:
         """Input text using pynput (supports Unicode)."""
-        with self.keyboard.pressed(keyboard.Key.shift):
-            pass  # Not needed for typing
-        
-        self.keyboard.type(text)
+        try:
+            self.keyboard.type(text)
+            return True
+        except Exception as e:
+            self.logger.warning(f"pynput method failed: {e}")
+            raise
     
-    def _input_via_pyautogui(self, text: str):
+    def _input_via_pyautogui(self, text: str) -> bool:
         """Input text using pyautogui (fallback)."""
-        interval = self.config.get("input", "type_interval", default=0.01)
-        pyautogui.typewrite(text, interval=interval)
+        try:
+            interval = self.config.get("input", "type_interval", default=0.01)
+            pyautogui.typewrite(text, interval=interval)
+            return True
+        except Exception as e:
+            self.logger.warning(f"pyautogui method failed: {e}")
+            raise
     
     def start(self):
         """Start the voice input client."""
-        self.logger.info("Starting Voice Input Tool - Windows Client")
+        self.logger.info("=" * 50)
+        self.logger.info("Starting Voice Input Tool - Windows Client (v2)")
+        self.logger.info("=" * 50)
         self.logger.info("Waiting for VoiceInputTool device...")
         
         # Keep trying to connect until successful
@@ -362,8 +503,53 @@ class VoiceInputClient:
         self.logger.info("Voice Input Tool stopped")
 
 
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Voice Input Tool - Windows Client",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python voice_input_client.py                    # Run with default config
+  python voice_input_client.py -c myconfig.json   # Use custom config
+  python voice_input_client.py --baudrate 115200  # Override baudrate
+  python voice_input_client.py --log-level DEBUG  # Enable debug logging
+        """
+    )
+    
+    parser.add_argument(
+        '-c', '--config',
+        default='config.json',
+        help='Path to config file (default: config.json)'
+    )
+    parser.add_argument(
+        '-b', '--baudrate',
+        type=int,
+        help='Serial baudrate (overrides config)'
+    )
+    parser.add_argument(
+        '-l', '--log-level',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        help='Logging level (overrides config)'
+    )
+    parser.add_argument(
+        '-v', '--version',
+        action='store_true',
+        help='Show version information'
+    )
+    
+    return parser.parse_args()
+
+
 def main():
     """Main entry point."""
+    args = parse_args()
+    
+    if args.version:
+        print("Voice Input Tool - Windows Client v2.0")
+        print("Round 2 enhancements: log rotation, exponential backoff, enhanced input stability")
+        return
+    
     # Check if required dependencies are available
     try:
         import serial
@@ -385,16 +571,23 @@ def main():
         print(f"Note: For better Unicode/Chinese support, install: pip install {' '.join(missing_optional)}")
     
     # Create default config if not exists
-    if not os.path.exists("config.json"):
+    if not os.path.exists(args.config):
         try:
-            with open("config.json", 'w', encoding='utf-8') as f:
+            with open(args.config, 'w', encoding='utf-8') as f:
                 json.dump(DEFAULT_CONFIG, f, indent=2, ensure_ascii=False)
-            print("Created default config.json")
+            print(f"Created default config: {args.config}")
         except Exception as e:
-            print(f"Warning: Could not create config.json: {e}")
+            print(f"Warning: Could not create config: {e}")
     
-    client = VoiceInputClient()
+    # Convert args to dict
+    args_dict = {
+        'baudrate': args.baudrate,
+        'log_level': args.log_level
+    }
+    
+    client = VoiceInputClient(config_path=args.config, args=args_dict)
     client.start()
+
 
 if __name__ == "__main__":
     main()
