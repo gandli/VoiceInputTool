@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="speaker_roles">
+        <item>General Conversation</item>
+        <item>Legal Interrogation</item>
+        <item>Business Meeting</item>
+        <item>Medical Consultation</item>
+    </string-array>
+</resources>
