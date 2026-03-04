@@ -11,7 +11,7 @@
         android:layout_height="120dp"
         android:src="@drawable/ic_microphone"
         android:contentDescription="Microphone icon"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="24dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -19,6 +19,14 @@
         android:text="Voice Input Tool"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Long press button to change language"
+        android:textSize="12sp"
+        android:textColor="#888888"
         android:layout_marginBottom="16dp" />
 
     <TextView
@@ -28,7 +36,15 @@
         android:text="Not connected - Please connect USB"
         android:textSize="16sp"
         android:textColor="#666666"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
+
+    <Spinner
+        android:id="@+id/language_spinner"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:drawable/btn_dropdown"
         android:gravity="center" />
 
     <Button

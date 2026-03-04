@@ -6,14 +6,26 @@
     "parity": "N",
     "stopbits": 1,
     "retry_interval": 2,
-    "max_retries": 0
+    "max_retries": 0,
+    "exponential_backoff": true,
+    "max_retry_interval": 60
   },
   "input": {
     "type_interval": 0.01,
-    "enable_clipboard": true
+    "enable_clipboard": true,
+    "retry_count": 3,
+    "retry_delay": 0.2,
+    "auto_enter_after_ms": 0,
+    "post_process": {
+      "trim_whitespace": true,
+      "auto_punctuate": false,
+      "punctuation_marks": "。！？；："
+    }
   },
   "logging": {
     "level": "INFO",
-    "file": "voice_input_client.log"
+    "file": "voice_input_client.log",
+    "max_bytes": 1048576,
+    "backup_count": 3
   }
 }
