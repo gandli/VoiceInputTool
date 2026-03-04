@@ -10,7 +10,10 @@ import android.os.ParcelFileDescriptor;
 import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +35,9 @@ public class MainActivity extends Activity {
     
     private Button mRecordButton;
     private TextView mStatusText;
+    private Spinner mRoleSpinner;
     private boolean mIsConnected = false;
+    private String mCurrentRole = "General Conversation";
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +46,12 @@ public class MainActivity extends Activity {
         
         mRecordButton = findViewById(R.id.record_button);
         mStatusText = findViewById(R.id.status_text);
+        mRoleSpinner = findViewById(R.id.role_spinner);
         
         mUsbManager = (UsbManager) getSystemService(USB_SERVICE);
+        
+        // Setup role spinner
+        setupRoleSpinner();
         
         // Check if USB accessory is already connected
         checkUsbAccessory();
@@ -50,6 +59,26 @@ public class MainActivity extends Activity {
         mRecordButton.setOnClickListener(v -> startVoiceRecognition());
         
         updateUI();
+    }
+    
+    private void setupRoleSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+            this, R.array.speaker_roles, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mRoleSpinner.setAdapter(adapter);
+        
+        mRoleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mCurrentRole = parent.getItemAtPosition(position).toString();
+                Log.d(TAG, "Selected role: " + mCurrentRole);
+            }
+            
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
     }
     
     private void checkUsbAccessory() {
@@ -152,11 +181,11 @@ public class MainActivity extends Activity {
     private void sendTextToComputer(String text) {
         if (mOutputStream != null) {
             try {
-                // Send text with newline terminator
-                String message = text + "\n";
+                // Format message with role context and newline terminator
+                String message = "[" + mCurrentRole + "] " + text + "\n";
                 mOutputStream.write(message.getBytes());
                 mOutputStream.flush();
-                Log.d(TAG, "Sent text to computer: " + text);
+                Log.d(TAG, "Sent text to computer: " + message);
             } catch (IOException e) {
                 Log.e(TAG, "Failed to send text to computer", e);
                 runOnUiThread(() -> {
