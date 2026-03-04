@@ -1,136 +1,136 @@
-# VoiceInputTool 产品需求文档 (PRD)
+# VoiceInputTool Product Requirements Document (PRD)
 
-## 1. 产品概述
+## 1. Product Overview
 
-### 1.1 背景
-传统的语音输入需要依赖电脑内置或外接麦克风，存在以下问题：
-- 笔记本麦克风质量差，识别准确率低
-- 外接麦克风增加硬件成本和复杂度
-- 移动场景下无法使用电脑语音输入
+### 1.1 Background
+Traditional voice input relies on built-in or external microphones on computers, which presents several issues:
+- Poor microphone quality on laptops leading to low recognition accuracy
+- External microphones add hardware costs and complexity
+- Inability to use computer voice input in mobile scenarios
 
-### 1.2 解决方案
-利用智能手机高质量的麦克风和成熟的语音识别能力，通过 USB 连接将手机变成电脑的无线语音输入设备。
+### 1.2 Solution
+Leverage smartphones' high-quality microphones and mature voice recognition capabilities to transform phones into USB-connected voice input devices for computers.
 
-### 1.3 产品愿景
-让任何人在任何场景下都能享受高质量、便捷的语音输入体验。
+### 1.3 Product Vision
+Enable anyone to enjoy high-quality, convenient voice input experience in any scenario.
 
-## 2. 目标用户
+## 2. Target Users
 
-### 2.1 主要用户群体
-- **开发者**：编写代码注释、文档
-- **内容创作者**：文章写作、博客创作
-- **办公人员**：邮件撰写、文档编辑
-- **学生**：笔记记录、论文写作
+### 2.1 Primary User Groups
+- **Developers**: Writing code comments and documentation
+- **Content Creators**: Article writing and blog creation
+- **Office Workers**: Email composition and document editing
+- **Students**: Note-taking and thesis writing
 
-### 2.2 用户痛点
-- 电脑麦克风识别准确率低
-- 硬件麦克风成本高且不便携
-- 现有语音输入工具配置复杂
-- 跨平台兼容性差
+### 2.2 User Pain Points
+- Low recognition accuracy with computer microphones
+- High cost and portability issues with hardware microphones
+- Complex configuration of existing voice input tools
+- Poor cross-platform compatibility
 
-## 3. 核心功能
+## 3. Core Features
 
-### 3.1 基础功能（MVP）
-- **USB 连接检测**：自动识别手机连接状态
-- **语音识别**：利用手机系统语音识别能力
-- **文字传输**：通过 USB 串口传输识别结果
-- **自动输入**：在电脑当前光标位置输入文字
-- **即插即用**：无需复杂配置，连接即可使用
+### 3.1 Basic Features (MVP)
+- **USB Connection Detection**: Automatic recognition of phone connection status
+- **Voice Recognition**: Utilize phone's system voice recognition capabilities
+- **Text Transfer**: Transmit recognition results via USB serial
+- **Automatic Input**: Input text at computer's current cursor position
+- **Plug-and-Play**: No complex configuration required, connect and use immediately
 
-### 3.2 增强功能（V2）
-- **AI 校对**：支持用户与 AI 对话修正识别结果
-- **格式控制**：语音命令控制标点、换行等
-- **多语言支持**：中英文混合识别
-- **快捷键触发**：电脑端快捷键启动手机录音
+### 3.2 Enhanced Features (V2)
+- **AI Proofreading**: Support user-AI dialogue to correct recognition results
+- **Format Control**: Voice commands for punctuation, line breaks, etc.
+- **Multi-language Support**: Chinese-English mixed recognition
+- **Hotkey Trigger**: Computer-side hotkey to start phone recording
 
-### 3.3 高级功能（V3）
-- **实时协作**：边说边处理，流式输出
-- **智能优化**：AI 主动建议语法修正
-- **多设备支持**：同时连接多个手机
-- **云同步**：识别历史和偏好设置同步
+### 3.3 Advanced Features (V3)
+- **Real-time Collaboration**: Stream processing while speaking
+- **Intelligent Optimization**: AI proactively suggests grammar corrections
+- **Multi-device Support**: Connect multiple phones simultaneously
+- **Cloud Sync**: Synchronize recognition history and preferences
 
-## 4. 技术规格
+## 4. Technical Specifications
 
-### 4.1 平台支持
-| 平台组合 | 优先级 | 技术方案 |
-|---------|--------|----------|
+### 4.1 Platform Support
+| Platform Combination | Priority | Technical Approach |
+|---------------------|----------|-------------------|
 | Android + Windows | P0 | USB Accessory Mode + Serial |
 | iOS + Mac | P1 | USB Network Tethering + WebRTC |
 | Android + Mac | P2 | USB OTG + Serial |
 | iOS + Windows | P2 | USB Network + Socket |
 
-### 4.2 性能指标
-- **延迟**：< 1秒（从说话到文字输入）
-- **准确率**：> 95%（普通话清晰发音）
-- **稳定性**：99.9% 连接成功率
-- **资源占用**：CPU < 5%, 内存 < 50MB
+### 4.2 Performance Metrics
+- **Latency**: < 1 second (from speaking to text input)
+- **Accuracy**: > 95% (clear Mandarin pronunciation)
+- **Stability**: 99.9% connection success rate
+- **Resource Usage**: CPU < 5%, Memory < 50MB
 
-### 4.3 安全要求
-- **数据本地处理**：语音识别在手机端完成
-- **无网络依赖**：纯局域网/USB 通信
-- **隐私保护**：不存储用户语音和文字数据
+### 4.3 Security Requirements
+- **Local Data Processing**: Voice recognition completed on the phone
+- **No Network Dependency**: Pure local network/USB communication
+- **Privacy Protection**: No storage of user voice or text data
 
-## 5. 用户体验
+## 5. User Experience
 
-### 5.1 使用流程
-1. USB 连接手机和电脑
-2. 打开 VoiceInputTool 应用
-3. 点击录音按钮开始说话
-4. 文字自动出现在电脑光标位置
+### 5.1 Usage Flow
+1. Connect phone and computer via USB
+2. Open VoiceInputTool application
+3. Tap the record button to start speaking
+4. Text automatically appears at computer cursor position
 
-### 5.2 界面设计原则
-- **极简主义**：最少的 UI 元素
-- **一键操作**：主要功能单次点击完成
-- **状态清晰**：连接状态、录音状态明确显示
-- **无障碍友好**：支持屏幕阅读器
+### 5.2 UI Design Principles
+- **Minimalism**: Minimal UI elements
+- **One-click Operation**: Main features completed with single click
+- **Clear Status**: Connection status and recording status clearly displayed
+- **Accessibility Friendly**: Supports screen readers
 
-## 6. 开发计划
+## 6. Development Plan
 
-### 6.1 MVP 阶段（Week 1-2）
-- [ ] Android 客户端基础功能
-- [ ] Windows 客户端基础功能  
-- [ ] USB 通信协议
-- [ ] 基础测试和文档
+### 6.1 MVP Phase (Week 1-2)
+- [ ] Android client basic functionality
+- [ ] Windows client basic functionality  
+- [ ] USB communication protocol
+- [ ] Basic testing and documentation
 
-### 6.2 V2 阶段（Week 3-4）
-- [ ] iOS + Mac 支持
-- [ ] AI 校对功能
-- [ ] 用户体验优化
-- [ ] 多语言支持
+### 6.2 V2 Phase (Week 3-4)
+- [ ] iOS + Mac support
+- [ ] AI proofreading functionality
+- [ ] User experience optimization
+- [ ] Multi-language support
 
-### 6.3 V3 阶段（Week 5+）
-- [ ] 实时协作功能
-- [ ] 高级智能优化
-- [ ] 云同步和备份
-- [ ] 社区功能和插件
+### 6.3 V3 Phase (Week 5+)
+- [ ] Real-time collaboration functionality
+- [ ] Advanced intelligent optimization
+- [ ] Cloud sync and backup
+- [ ] Community features and plugins
 
-## 7. 成功指标
+## 7. Success Metrics
 
-### 7.1 产品指标
-- **日活跃用户**：1000+
-- **用户满意度**：4.5/5.0+
-- **功能使用率**：核心功能 > 80%
-- **崩溃率**：< 0.1%
+### 7.1 Product Metrics
+- **Daily Active Users**: 1000+
+- **User Satisfaction**: 4.5/5.0+
+- **Feature Usage Rate**: Core features > 80%
+- **Crash Rate**: < 0.1%
 
-### 7.2 技术指标
-- **GitHub Stars**：500+
-- **Contributors**：10+
-- **Issue Resolution Time**：< 24小时
-- **Build Success Rate**：99%+
+### 7.2 Technical Metrics
+- **GitHub Stars**: 500+
+- **Contributors**: 10+
+- **Issue Resolution Time**: < 24 hours
+- **Build Success Rate**: 99%+
 
-## 8. 风险评估
+## 8. Risk Assessment
 
-### 8.1 技术风险
-- **iOS 限制**：Apple 对 USB 音频设备的限制
-- **驱动兼容性**：Windows 虚拟串口驱动问题
-- **性能瓶颈**：低端设备处理能力不足
+### 8.1 Technical Risks
+- **iOS Restrictions**: Apple's limitations on USB audio devices
+- **Driver Compatibility**: Windows virtual serial port driver issues
+- **Performance Bottlenecks**: Insufficient processing power on low-end devices
 
-### 8.2 市场风险
-- **竞争产品**：现有语音输入工具的改进
-- **用户习惯**：用户对新工具的学习成本
-- **平台变化**：操作系统 API 变更影响兼容性
+### 8.2 Market Risks
+- **Competing Products**: Improvements in existing voice input tools
+- **User Habits**: Learning curve for new tools
+- **Platform Changes**: Operating system API changes affecting compatibility
 
-### 8.3 缓解策略
-- **渐进式开发**：先验证核心功能再扩展
-- **社区反馈**：早期用户参与产品设计
-- **技术储备**：多种技术方案并行验证
+### 8.3 Mitigation Strategies
+- **Incremental Development**: Validate core functionality before expanding
+- **Community Feedback**: Early user participation in product design
+- **Technical Reserves**: Multiple technical solutions validated in parallel
