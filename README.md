@@ -46,8 +46,20 @@ Phone Speech → Real-time AI Processing → Intelligent Optimization → Real-t
 
 ### Android + Windows
 
-1. **Mobile**: Install VoiceInputTool APK
-2. **Computer**: Run Windows client
+1. **Build Android App**:
+   ```bash
+   cd android
+   ./gradlew assembleDebug
+   # Install app-debug.apk on your Android phone
+   ```
+
+2. **Install Windows Client**:
+   ```bash
+   cd desktop/windows
+   pip install -r requirements.txt
+   python voice_input_client.py
+   ```
+
 3. **Connect**: USB cable between phone and computer  
 4. **Use**: Tap record button to start voice input
 
@@ -63,9 +75,9 @@ cd android
 ./gradlew build
 
 # Desktop Development  
-cd desktop
-npm install
-npm start
+cd desktop/windows
+pip install -r requirements.txt
+python voice_input_client.py
 ```
 
 ## 📊 Roadmap
