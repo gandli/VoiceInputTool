@@ -1,93 +1,93 @@
 # VoiceInputTool 🎤
 
-让手机通过 USB 连接充当电脑的语音输入设备，摆脱硬件麦克风束缚！
+Transform your smartphone into a USB-connected voice input device for your computer, eliminating the need for dedicated hardware microphones!
 
-## 🎯 核心功能
+## 🎯 Core Features
 
-- **语音转文字**：使用手机麦克风说话，文字自动输入到电脑光标位置
-- **即插即用**：USB 连接后自动识别和配置
-- **跨平台支持**：Android/iOS + Windows/Mac
-- **低延迟**：实时文字输入体验
+- **Voice-to-Text**: Speak into your phone's microphone and have text automatically input at your computer's cursor position
+- **Plug-and-Play**: Automatic detection and configuration upon USB connection
+- **Cross-Platform Support**: Android/iOS + Windows/Mac
+- **Low Latency**: Real-time text input experience
 
-## 🚀 使用场景
+## 🚀 Use Cases
 
-- **文档写作**：边说边写，提高创作效率
-- **代码注释**：快速添加代码说明
-- **聊天输入**：在任何应用中使用语音输入
-- **无障碍辅助**：为有特殊需求的用户提供便利
+- **Document Writing**: Speak while writing to boost productivity
+- **Code Comments**: Quickly add code documentation
+- **Chat Input**: Use voice input in any application
+- **Accessibility**: Provide便利 for users with special needs
 
-## 🔧 技术架构
+## 🔧 Technical Architecture
 
-### 阶段 1: 基础版
+### Phase 1: Basic Version
 ```
-手机说话 → 系统语音识别 → USB传输 → 电脑光标输入
-```
-
-### 阶段 2: AI 校对版
-```
-手机说话 → 系统识别 → AI对话校对 → USB传输 → 电脑输入
+Phone Speech → System Voice Recognition → USB Transfer → Computer Cursor Input
 ```
 
-### 阶段 3: 实时协作版
+### Phase 2: AI Proofreading Version
 ```
-手机说话 → 实时AI处理 → 智能优化 → 实时输出到电脑
+Phone Speech → System Recognition → AI Dialogue Proofreading → USB Transfer → Computer Input
 ```
 
-## 📱 平台支持
+### Phase 3: Real-time Collaboration Version
+```
+Phone Speech → Real-time AI Processing → Intelligent Optimization → Real-time Output to Computer
+```
 
-| 平台 | 状态 | 技术方案 |
-|------|------|----------|
-| Android + Windows | 开发中 | USB Accessory Mode + Serial |
-| iOS + Mac | 计划中 | USB Network Tethering + WebRTC |
-| Android + Mac | 计划中 | USB OTG + Serial |
-| iOS + Windows | 计划中 | USB Network + Socket |
+## 📱 Platform Support
 
-## 🛠️ 快速开始
+| Platform | Status | Technical Approach |
+|----------|--------|-------------------|
+| Android + Windows | In Development | USB Accessory Mode + Serial |
+| iOS + Mac | Planned | USB Network Tethering + WebRTC |
+| Android + Mac | Planned | USB OTG + Serial |
+| iOS + Windows | Planned | USB Network + Socket |
+
+## 🛠️ Quick Start
 
 ### Android + Windows
 
-1. **手机端**：安装 VoiceInputTool APK
-2. **电脑端**：运行 Windows 客户端
-3. **连接**：USB 数据线连接手机和电脑
-4. **使用**：点击录音按钮开始语音输入
+1. **Mobile**: Install VoiceInputTool APK
+2. **Computer**: Run Windows client
+3. **Connect**: USB cable between phone and computer  
+4. **Use**: Tap record button to start voice input
 
-### 开发环境
+### Development Environment
 
 ```bash
-# 克隆项目
-git clone https://github.com/your-username/VoiceInputTool.git
+# Clone project
+git clone https://github.com/gandli/VoiceInputTool.git
 cd VoiceInputTool
 
-# Android 开发
+# Android Development
 cd android
 ./gradlew build
 
-# Desktop 开发  
+# Desktop Development  
 cd desktop
 npm install
 npm start
 ```
 
-## 📊 路线图
+## 📊 Roadmap
 
-- **Week 1**: Android + Windows 基础版 MVP
-- **Week 2**: iOS + Mac 支持
-- **Week 3**: AI 校对功能集成
-- **Week 4**: 实时协作和多语言支持
+- **Week 1**: Android + Windows MVP
+- **Week 2**: iOS + Mac support
+- **Week 3**: AI proofreading integration
+- **Week 4**: Real-time collaboration and multi-language support
 
-## 🤝 贡献指南
+## 🤝 Contributing
 
-欢迎贡献代码、报告问题或提出新功能建议！
+Contributions are welcome! Please feel free to submit code, report issues, or suggest new features.
 
-1. Fork 本仓库
-2. 创建你的特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交你的更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建 Pull Request
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📄 许可证
+## 📄 License
 
-MIT License - 详情请见 [LICENSE](LICENSE) 文件。
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
