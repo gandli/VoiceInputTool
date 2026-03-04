@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name -->
+    <string name="app_name">Voice Input Tool</string>
+
+    <!-- UI Labels -->
+    <string name="start_voice_input">Start Voice Input</string>
+    <string name="connect_first">Connect First</string>
+    <string name="connected_to_computer">Connected to computer</string>
+    <string name="not_connected">Not connected - Please connect USB</string>
+    <string name="speak_now">Speak now…</string>
+
+    <!-- Status Messages -->
+    <string name="sent_prefix">Sent: </string>
+    <string name="recognition_failed">Recognition failed</string>
+    <string name="usb_send_failed">USB send failed</string>
+
+    <!-- Toast Messages -->
+    <string name="text_sent">Text sent to computer</string>
+    <string name="connect_first_toast">Please connect to computer first</string>
+    <string name="voice_recognition_not_available">Voice recognition not available</string>
+    <string name="usb_permission_denied">USB permission denied</string>
+    <string name="usb_not_supported">USB not supported on this device</string>
+    <string name="usb_communication_failed">USB communication failed</string>
+</resources>
