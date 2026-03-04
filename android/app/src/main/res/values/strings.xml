@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VoiceInputTool</string>
+    <string name="record_button">Start Voice Input</string>
+    <string name="status_text">Not connected - Please connect USB</string>
+    <string name="settings_title">VoiceInputTool Settings</string>
+    <string name="language_preference">Recognition Language</string>
+    <string name="speaker_mode">Speaker Mode</string>
+    <string name="single_speaker">Single Speaker</string>
+    <string name="multi_speaker">Multi-Speaker (Experimental)</string>
+    <string name="auto_punctuation">Auto Punctuation</string>
+    <string name="send_delay">Send Delay (ms)</string>
+    <string name="usb_connection">USB Connection</string>
+    <string name="reconnect_on_disconnect">Reconnect on Disconnect</string>
+    <string name="error_usb_permission">USB permission denied. Please grant permission to use VoiceInputTool.</string>
+    <string name="error_voice_recognition">Voice recognition failed. Please try again.</string>
+    <string name="error_usb_communication">USB communication error. Please reconnect your device.</string>
+    <string name="success_text_sent">Text sent successfully!</string>
+    <string name="hint_connect_first">Please connect your phone to your computer via USB first.</string>
+    <string name="hint_speak_now">Speak now...</string>
+</resources>

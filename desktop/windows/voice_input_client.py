@@ -10,23 +10,76 @@ import pyautogui
 import time
 import sys
 import threading
+import logging
 from typing import Optional, List
+import json
+import os
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("voice_input_client.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 class VoiceInputClient:
     def __init__(self):
         self.serial_port: Optional[serial.Serial] = None
         self.is_running = False
         self.connected_device = None
+        self.config = self.load_config()
         
+    def load_config(self) -> dict:
+        """Load configuration from file or return defaults."""
+        config_path = "voice_input_config.json"
+        default_config = {
+            "baudrate": 9600,
+            "timeout": 1,
+            "auto_reconnect": True,
+            "reconnect_interval": 5,
+            "input_delay": 0.1,
+            "typing_interval": 0.01,
+            "device_identifiers": ["usb", "serial", "ch340", "cp210", "ftdi"]
+        }
+        
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                    # Merge with defaults to ensure all keys exist
+                    for key, value in default_config.items():
+                        if key not in config:
+                            config[key] = value
+                    logger.info(f"Loaded configuration from {config_path}")
+                    return config
+            except Exception as e:
+                logger.error(f"Failed to load config file: {e}. Using defaults.")
+                
+        logger.info("Using default configuration")
+        return default_config
+    
+    def save_config(self):
+        """Save current configuration to file."""
+        try:
+            with open("voice_input_config.json", 'w') as f:
+                json.dump(self.config, f, indent=2)
+            logger.info("Configuration saved successfully")
+        except Exception as e:
+            logger.error(f"Failed to save config: {e}")
+    
     def find_voice_input_device(self) -> Optional[str]:
         """Find the VoiceInputTool USB device."""
         ports = serial.tools.list_ports.comports()
         
         for port in ports:
-            # Look for common USB-to-serial adapters that might be used
-            # In production, this should match the specific device VID/PID
-            if any(keyword in port.description.lower() for keyword in ['usb', 'serial', 'ch340', 'cp210']):
-                print(f"Found potential device: {port.device} - {port.description}")
+            # Check against configured device identifiers
+            port_desc_lower = port.description.lower()
+            if any(keyword in port_desc_lower for keyword in self.config["device_identifiers"]):
+                logger.info(f"Found potential device: {port.device} - {port.description}")
                 return port.device
                 
         return None
@@ -36,24 +89,24 @@ class VoiceInputClient:
         device_port = self.find_voice_input_device()
         
         if not device_port:
-            print("No VoiceInputTool device found. Please connect your phone via USB.")
+            logger.warning("No VoiceInputTool device found. Please connect your phone via USB.")
             return False
             
         try:
             self.serial_port = serial.Serial(
                 port=device_port,
-                baudrate=9600,
-                timeout=1,
+                baudrate=self.config["baudrate"],
+                timeout=self.config["timeout"],
                 bytesize=8,
                 parity='N',
                 stopbits=1
             )
             self.connected_device = device_port
-            print(f"Connected to VoiceInputTool on {device_port}")
+            logger.info(f"Connected to VoiceInputTool on {device_port}")
             return True
             
         except serial.SerialException as e:
-            print(f"Failed to connect to {device_port}: {e}")
+            logger.error(f"Failed to connect to {device_port}: {e}")
             return False
     
     def listen_for_text(self):
@@ -65,17 +118,17 @@ class VoiceInputClient:
                     line = self.serial_port.readline().decode('utf-8').strip()
                     
                     if line:
-                        print(f"Received text: {line}")
+                        logger.info(f"Received text: {line}")
                         self.input_text_at_cursor(line)
                         
             except UnicodeDecodeError:
-                print("Received invalid UTF-8 data, skipping...")
+                logger.warning("Received invalid UTF-8 data, skipping...")
                 continue
             except serial.SerialException as e:
-                print(f"Serial communication error: {e}")
+                logger.error(f"Serial communication error: {e}")
                 break
             except Exception as e:
-                print(f"Unexpected error: {e}")
+                logger.error(f"Unexpected error: {e}")
                 break
                 
             time.sleep(0.1)  # Small delay to prevent excessive CPU usage
@@ -84,24 +137,27 @@ class VoiceInputClient:
         """Input text at the current cursor position."""
         try:
             # Add a small delay to ensure we're ready to type
-            time.sleep(0.1)
+            time.sleep(self.config["input_delay"])
             
             # Type the text character by character
-            pyautogui.typewrite(text, interval=0.01)
+            pyautogui.typewrite(text, interval=self.config["typing_interval"])
             
-            print(f"Successfully input text at cursor position")
+            logger.info(f"Successfully input text at cursor position")
             
         except Exception as e:
-            print(f"Failed to input text: {e}")
+            logger.error(f"Failed to input text: {e}")
     
     def start(self):
         """Start the voice input client."""
-        print("Starting Voice Input Tool - Windows Client")
-        print("Waiting for VoiceInputTool device...")
+        logger.info("Starting Voice Input Tool - Windows Client")
+        logger.info("Waiting for VoiceInputTool device...")
         
         # Keep trying to connect until successful
         while not self.connect_to_device():
-            time.sleep(2)
+            if not self.config["auto_reconnect"]:
+                logger.error("Auto-reconnect disabled. Exiting.")
+                return
+            time.sleep(self.config["reconnect_interval"])
         
         self.is_running = True
         
@@ -109,15 +165,15 @@ class VoiceInputClient:
         listener_thread = threading.Thread(target=self.listen_for_text, daemon=True)
         listener_thread.start()
         
-        print("Voice Input Tool is running! Speak into your phone and text will appear on your computer.")
-        print("Press Ctrl+C to exit.")
+        logger.info("Voice Input Tool is running! Speak into your phone and text will appear on your computer.")
+        logger.info("Press Ctrl+C to exit.")
         
         try:
             # Keep main thread alive
             while self.is_running:
                 time.sleep(1)
         except KeyboardInterrupt:
-            print("\nShutting down Voice Input Tool...")
+            logger.info("\nShutting down Voice Input Tool...")
             self.stop()
     
     def stop(self):
@@ -126,7 +182,7 @@ class VoiceInputClient:
         
         if self.serial_port:
             self.serial_port.close()
-            print("Disconnected from VoiceInputTool device.")
+            logger.info("Disconnected from VoiceInputTool device.")
 
 def main():
     """Main entry point."""
@@ -135,7 +191,7 @@ def main():
         import serial
         import pyautogui
     except ImportError as e:
-        print(f"Missing required dependency: {e}")
+        logger.error(f"Missing required dependency: {e}")
         print("Please install dependencies with: pip install pyserial pyautogui")
         sys.exit(1)
     
