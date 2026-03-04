@@ -1,2 +1,9 @@
+# Required dependencies
 pyserial>=3.5
-pyautogui>=0.9.53
+
+# Optional dependencies for better Unicode/Chinese text support
+pynput>=1.7.6
+pyperclip>=1.8.2
+
+# Optional: Use pyautogui as fallback (not needed if using pynput)
+# pyautogui>=0.9.53
