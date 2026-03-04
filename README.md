@@ -54,6 +54,15 @@ Phone Microphone → Real-time Speaker Separation → Local LLM Processing → I
 
 **Note**: iOS support is limited due to Apple's restrictions on USB audio functionality.
 
+## ⚙️ Configuration
+
+The app now includes a settings screen where you can:
+- Select voice recognition language
+- Enable/disable multi-speaker mode
+- Configure speaker roles (Interviewer, Interviewee, etc.)
+- Adjust sensitivity for voice detection
+- Choose text output format (plain text, formatted dialogue, etc.)
+
 ## 🛠️ Quick Start
 
 ### Android + Windows

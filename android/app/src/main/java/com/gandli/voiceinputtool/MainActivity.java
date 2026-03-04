@@ -1,7 +1,10 @@
 package com.gandli.voiceinputtool;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbManager;
@@ -34,6 +37,9 @@ public class MainActivity extends Activity {
     private TextView mStatusText;
     private boolean mIsConnected = false;
     
+    private VoiceProcessor mVoiceProcessor;
+    private BroadcastReceiver mUsbReceiver;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +49,25 @@ public class MainActivity extends Activity {
         mStatusText = findViewById(R.id.status_text);
         
         mUsbManager = (UsbManager) getSystemService(USB_SERVICE);
+        mVoiceProcessor = new VoiceProcessor(this);
+        
+        // Register USB receiver for connection events
+        mUsbReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
+                    checkUsbAccessory();
+                } else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+                    closeAccessory();
+                }
+            }
+        };
+        
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+        registerReceiver(mUsbReceiver, filter);
         
         // Check if USB accessory is already connected
         checkUsbAccessory();
@@ -74,11 +99,42 @@ public class MainActivity extends Activity {
                 mOutputStream = new FileOutputStream(mFileDescriptor.getFileDescriptor());
                 mIsConnected = true;
                 Log.d(TAG, "USB accessory opened successfully");
+                
+                // Start listening for incoming commands from computer
+                startCommandListener();
+                
                 runOnUiThread(this::updateUI);
             }
         } catch (IOException e) {
             Log.e(TAG, "Failed to open USB accessory", e);
+            runOnUiThread(() -> {
+                mStatusText.setText("USB connection failed");
+                Toast.makeText(MainActivity.this, "USB connection failed", Toast.LENGTH_SHORT).show();
+            });
         }
+    }
+    
+    private void startCommandListener() {
+        new Thread(() -> {
+            byte[] buffer = new byte[1024];
+            while (mIsConnected && mInputStream != null) {
+                try {
+                    int bytesRead = mInputStream.read(buffer);
+                    if (bytesRead > 0) {
+                        String command = new String(buffer, 0, bytesRead).trim();
+                        Log.d(TAG, "Received command: " + command);
+                        
+                        // Process commands from computer
+                        if ("GET_SPEAKER_COUNT".equals(command)) {
+                            sendTextToComputer("SPEAKER_COUNT:" + mVoiceProcessor.getSpeakerCount());
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Error reading from USB", e);
+                    break;
+                }
+            }
+        }).start();
     }
     
     private void closeAccessory() {
@@ -109,16 +165,8 @@ public class MainActivity extends Activity {
             return;
         }
         
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...");
-        
-        try {
-            startActivityForResult(intent, REQUEST_VOICE_RECOGNITION);
-        } catch (Exception e) {
-            Toast.makeText(this, "Voice recognition not available", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Voice recognition error", e);
-        }
+        // Use our enhanced voice processor
+        mVoiceProcessor.startVoiceRecognition(REQUEST_VOICE_RECOGNITION);
     }
     
     @Override
@@ -126,26 +174,24 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         
         if (requestCode == REQUEST_VOICE_RECOGNITION) {
-            if (resultCode == RESULT_OK && data != null) {
-                ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                if (results != null && !results.isEmpty()) {
-                    String recognizedText = results.get(0);
-                    Log.d(TAG, "Recognized text: " + recognizedText);
+            mVoiceProcessor.handleVoiceRecognitionResult(resultCode, data, text -> {
+                if (text != null && !text.isEmpty()) {
+                    Log.d(TAG, "Processed text: " + text);
                     
-                    // Send text to computer via USB
-                    sendTextToComputer(recognizedText);
+                    // Send processed text to computer via USB
+                    sendTextToComputer(text);
                     
                     runOnUiThread(() -> {
-                        mStatusText.setText("Sent: " + recognizedText);
+                        mStatusText.setText("Sent: " + text);
                         Toast.makeText(MainActivity.this, "Text sent to computer", Toast.LENGTH_SHORT).show();
                     });
+                } else {
+                    runOnUiThread(() -> {
+                        mStatusText.setText("Recognition failed");
+                        Toast.makeText(MainActivity.this, "Recognition failed", Toast.LENGTH_SHORT).show();
+                    });
                 }
-            } else {
-                runOnUiThread(() -> {
-                    mStatusText.setText("Recognition failed");
-                    Toast.makeText(MainActivity.this, "Recognition failed", Toast.LENGTH_SHORT).show();
-                });
-            }
+            });
         }
     }
     
@@ -182,6 +228,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mUsbReceiver != null) {
+            unregisterReceiver(mUsbReceiver);
+        }
         closeAccessory();
     }
 }

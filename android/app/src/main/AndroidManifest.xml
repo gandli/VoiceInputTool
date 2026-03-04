@@ -30,5 +30,9 @@
                 android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
                 android:resource="@xml/accessory_filter" />
         </activity>
+        
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
     </application>
 </manifest>
