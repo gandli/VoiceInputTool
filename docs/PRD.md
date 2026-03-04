@@ -3,51 +3,53 @@
 ## 1. Product Overview
 
 ### 1.1 Background
-Traditional voice input relies on built-in or external microphones on computers, which presents several issues:
-- Poor microphone quality on laptops leading to low recognition accuracy
-- External microphones add hardware costs and complexity
-- Inability to use computer voice input in mobile scenarios
+Many users still rely on older computers that lack modern microphones, sufficient processing power, or the ability to run contemporary voice recognition software. Additionally, professional scenarios like legal interrogations, business meetings, and medical consultations require accurate multi-speaker dialogue recognition with proper speaker attribution.
 
 ### 1.2 Solution
-Leverage smartphones' high-quality microphones and mature voice recognition capabilities to transform phones into USB-connected voice input devices for computers.
+VoiceInputTool leverages smartphones as intelligent voice input devices connected via USB to computers. The smartphone handles all audio processing, voice recognition, speaker diarization, and AI-powered text correction, then transmits formatted text to the computer for insertion at the cursor position.
 
 ### 1.3 Product Vision
-Enable anyone to enjoy high-quality, convenient voice input experience in any scenario.
+Enable any computer—regardless of age or specifications—to access modern AI-powered voice input capabilities through ubiquitous smartphones, while providing professional-grade multi-speaker dialogue recognition for specialized use cases.
 
 ## 2. Target Users
 
 ### 2.1 Primary User Groups
-- **Developers**: Writing code comments and documentation
-- **Content Creators**: Article writing and blog creation
-- **Office Workers**: Email composition and document editing
-- **Students**: Note-taking and thesis writing
+- **Government & Legal Professionals**: Law enforcement officers conducting interrogations, legal professionals documenting client meetings
+- **Business Professionals**: Meeting participants, interviewers, project managers
+- **Healthcare Providers**: Doctors and nurses documenting patient consultations  
+- **Legacy System Users**: Individuals and organizations using older computers (Windows XP, macOS 10.6, etc.)
+- **Budget-Conscious Users**: Those who cannot afford new hardware or external microphones
 
 ### 2.2 User Pain Points
-- Low recognition accuracy with computer microphones
-- High cost and portability issues with hardware microphones
-- Complex configuration of existing voice input tools
-- Poor cross-platform compatibility
+- Older computers lack quality microphones or cannot run modern voice recognition software
+- Professional scenarios require accurate speaker attribution in multi-person conversations
+- Existing solutions require internet connectivity, compromising privacy in sensitive situations
+- Hardware microphone solutions are expensive and add complexity
+- Current voice input tools don't understand conversation structure or context
 
 ## 3. Core Features
 
 ### 3.1 Basic Features (MVP)
 - **USB Connection Detection**: Automatic recognition of phone connection status
-- **Voice Recognition**: Utilize phone's system voice recognition capabilities
-- **Text Transfer**: Transmit recognition results via USB serial
-- **Automatic Input**: Input text at computer's current cursor position
-- **Plug-and-Play**: No complex configuration required, connect and use immediately
+- **System Voice Recognition**: Utilize phone's built-in voice recognition capabilities
+- **Preset Speaker Roles**: User-defined roles (e.g., "Interviewer", "Subject") with manual switching
+- **Text Transfer**: Transmit formatted text via USB serial to computer
+- **Automatic Input**: Insert text at computer's current cursor position
+- **Legacy System Compatibility**: Minimal dependencies for older operating systems
 
 ### 3.2 Enhanced Features (V2)
-- **AI Proofreading**: Support user-AI dialogue to correct recognition results
-- **Format Control**: Voice commands for punctuation, line breaks, etc.
-- **Multi-language Support**: Chinese-English mixed recognition
-- **Hotkey Trigger**: Computer-side hotkey to start phone recording
+- **Automatic Speaker Diarization**: Use voiceprint recognition to automatically distinguish speakers
+- **Local LLM Integration**: On-device large language models for intelligent text correction and formatting
+- **Professional Templates**: Pre-built templates for legal, meeting, medical, and general use cases
+- **Real-time Collaboration**: Multi-device synchronization and editing capabilities
+- **Offline Operation**: Complete functionality without internet connectivity
 
 ### 3.3 Advanced Features (V3)
-- **Real-time Collaboration**: Stream processing while speaking
-- **Intelligent Optimization**: AI proactively suggests grammar corrections
-- **Multi-device Support**: Connect multiple phones simultaneously
-- **Cloud Sync**: Synchronize recognition history and preferences
+- **Context-Aware Processing**: Understand conversation context and adapt processing accordingly
+- **Multi-language Support**: Real-time translation and mixed-language processing
+- **Cloud Template Marketplace**: Share and download community-created templates
+- **Advanced Analytics**: Generate insights from conversation data (with user consent)
+- **Enterprise Integration**: Connect with existing case management and documentation systems
 
 ## 4. Technical Specifications
 
@@ -55,82 +57,89 @@ Enable anyone to enjoy high-quality, convenient voice input experience in any sc
 | Platform Combination | Priority | Technical Approach |
 |---------------------|----------|-------------------|
 | Android + Windows | P0 | USB Accessory Mode + Serial |
-| iOS + Mac | P1 | USB Network Tethering + WebRTC |
-| Android + Mac | P2 | USB OTG + Serial |
-| iOS + Windows | P2 | USB Network + Socket |
+| Android + macOS | P1 | USB Network Tethering + WebRTC |
+| Android + Linux | P1 | USB OTG + Serial |
+| iOS + Any | P3 | Limited due to Apple restrictions |
 
 ### 4.2 Performance Metrics
-- **Latency**: < 1 second (from speaking to text input)
-- **Accuracy**: > 95% (clear Mandarin pronunciation)
-- **Stability**: 99.9% connection success rate
-- **Resource Usage**: CPU < 5%, Memory < 50MB
+- **End-to-End Latency**: < 2 seconds (from speaking to text appearing on computer)
+- **Speaker Recognition Accuracy**: > 90% (2-speaker preset mode), > 85% (automatic diarization)
+- **Voice Recognition Accuracy**: > 95% (clear speech in quiet environments)
+- **Legacy System Compatibility**: Windows XP+, macOS 10.6+, any Linux with USB serial support
+- **Resource Usage**: Phone CPU < 30%, Memory < 200MB; Computer CPU < 1%, Memory < 10MB
 
 ### 4.3 Security Requirements
-- **Local Data Processing**: Voice recognition completed on the phone
-- **No Network Dependency**: Pure local network/USB communication
-- **Privacy Protection**: No storage of user voice or text data
+- **Local Processing**: All audio and text processing occurs on the user's devices
+- **No Data Transmission**: No data is sent to external servers or cloud services
+- **Privacy Protection**: Sensitive conversation data never leaves user's control
+- **Secure Communication**: Encrypted USB communication channel
+- **Compliance**: Meets requirements for sensitive professional environments (legal, medical, government)
 
 ## 5. User Experience
 
 ### 5.1 Usage Flow
-1. Connect phone and computer via USB
-2. Open VoiceInputTool application
-3. Tap the record button to start speaking
-4. Text automatically appears at computer cursor position
+1. Connect phone and computer via USB cable
+2. Launch VoiceInputTool application on phone
+3. Select appropriate template (Legal Interrogation, Meeting Minutes, etc.)
+4. Begin conversation - text appears automatically at computer cursor position
+5. Review and edit final document as needed
 
 ### 5.2 UI Design Principles
-- **Minimalism**: Minimal UI elements
-- **One-click Operation**: Main features completed with single click
-- **Clear Status**: Connection status and recording status clearly displayed
-- **Accessibility Friendly**: Supports screen readers
+- **Simplicity**: Minimal interface focused on core functionality
+- **Professional Appearance**: Appropriate for serious professional contexts
+- **Accessibility**: Support for users with disabilities
+- **Offline-First**: All functionality available without internet
+- **Low Cognitive Load**: Easy to use even under pressure or stress
 
 ## 6. Development Plan
 
 ### 6.1 MVP Phase (Week 1-2)
-- [ ] Android client basic functionality
-- [ ] Windows client basic functionality  
-- [ ] USB communication protocol
-- [ ] Basic testing and documentation
+- [ ] Android client with preset speaker roles
+- [ ] Ultra-lightweight Windows client compatible with legacy systems
+- [ ] USB communication protocol with role-based text formatting
+- [ ] Basic testing on Windows XP virtual machine
 
-### 6.2 V2 Phase (Week 3-4)
-- [ ] iOS + Mac support
-- [ ] AI proofreading functionality
-- [ ] User experience optimization
-- [ ] Multi-language support
+### 6.2 V2 Phase (Week 3-5)
+- [ ] Automatic speaker diarization with voiceprint recognition
+- [ ] Local LLM integration for intelligent text processing
+- [ ] Professional templates (Legal, Meeting, Medical, General)
+- [ ] macOS and Linux client development
 
-### 6.3 V3 Phase (Week 5+)
-- [ ] Real-time collaboration functionality
-- [ ] Advanced intelligent optimization
-- [ ] Cloud sync and backup
-- [ ] Community features and plugins
+### 6.3 V3 Phase (Week 6+)
+- [ ] Context-aware processing and advanced analytics
+- [ ] Multi-language support and real-time translation
+- [ ] Cloud template marketplace
+- [ ] Enterprise integration capabilities
 
 ## 7. Success Metrics
 
 ### 7.1 Product Metrics
-- **Daily Active Users**: 1000+
-- **User Satisfaction**: 4.5/5.0+
-- **Feature Usage Rate**: Core features > 80%
-- **Crash Rate**: < 0.1%
+- **Daily Active Users**: 1000+ within 6 months
+- **User Satisfaction**: 4.5/5.0+ average rating
+- **Feature Adoption**: Core features used by > 80% of active users
+- **Crash Rate**: < 0.1% of sessions
 
 ### 7.2 Technical Metrics
-- **GitHub Stars**: 500+
-- **Contributors**: 10+
-- **Issue Resolution Time**: < 24 hours
-- **Build Success Rate**: 99%+
+- **GitHub Stars**: 500+ within 3 months
+- **Contributors**: 10+ active contributors
+- **Issue Resolution Time**: < 24 hours for critical issues
+- **Cross-Platform Compatibility**: 100% of supported platforms functional
 
 ## 8. Risk Assessment
 
 ### 8.1 Technical Risks
-- **iOS Restrictions**: Apple's limitations on USB audio devices
-- **Driver Compatibility**: Windows virtual serial port driver issues
-- **Performance Bottlenecks**: Insufficient processing power on low-end devices
+- **Legacy System Compatibility**: Older operating systems may have USB driver issues
+- **Voice Recognition Quality**: Built-in phone recognition may vary by device and region
+- **Speaker Diarization Accuracy**: Similar voices or background noise may reduce accuracy
+- **Performance on Low-End Devices**: Older phones may struggle with LLM processing
 
 ### 8.2 Market Risks
-- **Competing Products**: Improvements in existing voice input tools
-- **User Habits**: Learning curve for new tools
-- **Platform Changes**: Operating system API changes affecting compatibility
+- **Competing Solutions**: Existing voice input tools may add similar features
+- **User Adoption**: Professionals may be resistant to new technology in critical workflows
+- **Platform Changes**: Operating system updates may break USB compatibility
 
 ### 8.3 Mitigation Strategies
-- **Incremental Development**: Validate core functionality before expanding
-- **Community Feedback**: Early user participation in product design
-- **Technical Reserves**: Multiple technical solutions validated in parallel
+- **Incremental Development**: Start with simple preset roles before implementing complex diarization
+- **Extensive Testing**: Test on wide range of devices and operating systems
+- **Community Feedback**: Engage early adopters in product development
+- **Fallback Mechanisms**: Provide manual override options when automatic features fail

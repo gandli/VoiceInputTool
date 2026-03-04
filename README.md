@@ -1,36 +1,47 @@
 # VoiceInputTool 🎤
 
-Transform your smartphone into a USB-connected voice input device for your computer, eliminating the need for dedicated hardware microphones!
+Transform your smartphone into a USB-connected voice input device for your computer, enabling **older computers** to leverage **mobile AI capabilities** and **multi-speaker dialogue recognition**!
 
 ## 🎯 Core Features
 
-- **Voice-to-Text**: Speak into your phone's microphone and have text automatically input at your computer's cursor position
+- **Voice-to-Text for Legacy Systems**: Enable voice input on older computers (Windows XP+, macOS 10.6+, Linux) that lack modern microphones or processing power
+- **Mobile AI Integration**: Utilize your smartphone's powerful large language models for intelligent text correction and formatting
+- **Multi-Speaker Dialogue Recognition**: Automatically distinguish between different speakers in conversations (interviews, meetings, legal interrogations)
 - **Plug-and-Play**: Automatic detection and configuration upon USB connection
-- **Cross-Platform Support**: Android/iOS + Windows/Mac
-- **Low Latency**: Real-time text input experience
+- **Offline Operation**: No internet required - all processing happens locally on your phone
 
 ## 🚀 Use Cases
 
-- **Document Writing**: Speak while writing to boost productivity
-- **Code Comments**: Quickly add code documentation
-- **Chat Input**: Use voice input in any application
-- **Accessibility**: Provide便利 for users with special needs
+### Legal & Law Enforcement
+- **Interrogation Records**: Automatically generate formatted interrogation transcripts with speaker labels
+- **Evidence Documentation**: Create accurate records during field investigations
+- **Compliance**: Ensure proper legal terminology and procedural compliance
+
+### Business & Professional  
+- **Meeting Minutes**: Generate structured meeting notes with speaker identification
+- **Interview Transcripts**: Create professional interview records with automatic formatting
+- **Medical Notes**: Document patient consultations with role-based formatting
+
+### Accessibility & Legacy Systems
+- **Old Computer Modernization**: Give decade-old computers modern voice input capabilities
+- **Cost-Effective Upgrade**: No need to purchase new hardware or external microphones
+- **Privacy-Focused**: All processing happens locally, no data leaves your devices
 
 ## 🔧 Technical Architecture
 
-### Phase 1: Basic Version
+### Phase 1: Basic Multi-Speaker Recognition
 ```
-Phone Speech → System Voice Recognition → USB Transfer → Computer Cursor Input
-```
-
-### Phase 2: AI Proofreading Version
-```
-Phone Speech → System Recognition → AI Dialogue Proofreading → USB Transfer → Computer Input
+Phone Microphone → System Voice Recognition → Speaker Role Assignment → USB Transfer → Computer Cursor Input
 ```
 
-### Phase 3: Real-time Collaboration Version
+### Phase 2: Advanced Speaker Diarization  
 ```
-Phone Speech → Real-time AI Processing → Intelligent Optimization → Real-time Output to Computer
+Phone Microphone → Voice Activity Detection → Speaker Diarization → ASR → LLM Processing → Formatted Output → USB Transfer
+```
+
+### Phase 3: Full AI Integration
+```
+Phone Microphone → Real-time Speaker Separation → Local LLM Processing → Intelligent Formatting → Real-time Output to Computer
 ```
 
 ## 📱 Platform Support
@@ -38,9 +49,10 @@ Phone Speech → Real-time AI Processing → Intelligent Optimization → Real-t
 | Platform | Status | Technical Approach |
 |----------|--------|-------------------|
 | Android + Windows | In Development | USB Accessory Mode + Serial |
-| iOS + Mac | Planned | USB Network Tethering + WebRTC |
-| Android + Mac | Planned | USB OTG + Serial |
-| iOS + Windows | Planned | USB Network + Socket |
+| Android + macOS | Planned | USB Network Tethering + WebRTC |
+| Android + Linux | Planned | USB OTG + Serial |
+
+**Note**: iOS support is limited due to Apple's restrictions on USB audio functionality.
 
 ## 🛠️ Quick Start
 
@@ -61,31 +73,19 @@ Phone Speech → Real-time AI Processing → Intelligent Optimization → Real-t
    ```
 
 3. **Connect**: USB cable between phone and computer  
-4. **Use**: Tap record button to start voice input
+4. **Use**: Select conversation template and start speaking
 
-### Development Environment
+### System Requirements
 
-```bash
-# Clone project
-git clone https://github.com/gandli/VoiceInputTool.git
-cd VoiceInputTool
-
-# Android Development
-cd android
-./gradlew build
-
-# Desktop Development  
-cd desktop/windows
-pip install -r requirements.txt
-python voice_input_client.py
-```
+**Computer**: Any system with USB port and basic Python support (Windows XP+, macOS 10.6+, Linux)
+**Phone**: Android 8.0+ with decent microphone quality
 
 ## 📊 Roadmap
 
-- **Week 1**: Android + Windows MVP
-- **Week 2**: iOS + Mac support
-- **Week 3**: AI proofreading integration
-- **Week 4**: Real-time collaboration and multi-language support
+- **Week 1**: Multi-speaker role assignment (preset roles) + Legacy system compatibility
+- **Week 2**: Speaker diarization with voiceprint recognition  
+- **Week 3**: Local LLM integration for intelligent text processing
+- **Week 4**: Professional templates (Legal, Meeting, Medical, General)
 
 ## 🤝 Contributing
 
@@ -103,4 +103,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Made with ❤️ for developers who love voice input!**
+**Made with ❤️ to bring AI-powered voice input to everyone, regardless of their hardware!**
