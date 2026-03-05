@@ -1,4 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Voice Input Tool</string>
+    
+    <!-- USB Connection -->
+    <string name="usb_connected">Connected to computer</string>
+    <string name="usb_disconnected">Not connected</string>
+    <string name="usb_connect_first">Connect First</string>
+    <string name="usb_permission_denied">USB permission denied</string>
+    <string name="usb_not_supported">USB not supported on this device</string>
+    <string name="usb_open_failed">USB open failed</string>
+    <string name="usb_send_failed">USB send failed</string>
+    <string name="usb_communication_failed">USB communication failed</string>
+    
+    <!-- Voice Recognition -->
+    <string name="voice_recognition_not_available">Voice recognition not available on this device</string>
+    <string name="voice_listening">Listening...</string>
+    <string name="voice_processing">Processing...</string>
+    <string name="voice_speak_now">Speak now...</string>
+    <string name="voice_error_network">Network error</string>
+    <string name="voice_error_audio">Audio error</string>
+    <string name="voice_error_server">Server error</string>
+    <string name="voice_error_client">Client error</string>
+    <string name="voice_error_no_speech">No speech input</string>
+    <string name="voice_error_timeout">Speak timeout</string>
+    <string name="voice_error_max_matches">Max matches reached</string>
+    <string name="voice_error_language">Language not supported</string>
+    <string name="voice_error_unknown">Unknown error</string>
+    
+    <!-- Recording -->
+    <string name="record_start">Start Recording</string>
+    <string name="record_stop">Stop Recording</string>
+    <string name="record_error">Speech recognition error</string>
+    <string name="record_stopped">Stopped listening</string>
+    
+    <!-- Text Transfer -->
+    <string name="text_sent">Text sent to computer</string>
+    <string name="text_partial_prefix">Partial: </string>
+    <string name="text_sent_prefix">Sent: </string>
 </resources>

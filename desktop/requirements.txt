@@ -1,0 +1,19 @@
+# Voice Input Tool - Desktop Client Dependencies
+# Install with: pip install -r requirements.txt
+
+# Required for serial communication
+pyserial>=3.5
+
+# Recommended for keyboard input (supports Unicode/Chinese)
+pynput>=1.7.6
+
+# Alternative keyboard input method
+pyautogui>=0.9.54
+
+# For clipboard operations (better Unicode support)
+pyperclip>=1.8.2
+
+# Development dependencies (optional)
+pytest>=7.0.0
+black>=22.0.0
+mypy>=0.950

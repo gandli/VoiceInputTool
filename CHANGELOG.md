@@ -47,7 +47,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Line length limits to prevent buffer overflow
 - Secure_ID generation for session tracking
 
-## [0.1.0] - 2026-03-04
+## [2.0.0] - 2026-03-05
+
+### Added
+- **Base Client Module** (`voice_input_client_base.py`): Unified base class for all desktop clients
+  - Abstract `VoiceInputClientBase` class with common functionality
+  - Configuration management with dataclasses and validation
+  - Security utilities with comprehensive input validation
+  - Logging manager with rotation support
+  - Standardized argument parser for all platforms
+- **String Resources**: Complete Android string resources for internationalization
+  - USB connection strings
+  - Voice recognition error messages
+  - Recording and text transfer strings
+
+### Changed
+- **Android MainActivity.java**: Major refactoring for code quality
+  - Replaced boolean flags with `AtomicBoolean` for thread safety
+  - Added proper resource cleanup in `onDestroy()`
+  - Improved exception handling with specific error messages
+  - Extracted all hardcoded strings to `strings.xml`
+  - Added background thread management for USB reading
+  - Better separation of concerns with private helper methods
+  - Fixed potential memory leaks in stream handling
+
+- **Desktop Clients Refactoring**: All three platform clients refactored to use base class
+  - Windows client: Reduced from ~600 lines to ~70 lines
+  - macOS client: Reduced from ~400 lines to ~90 lines  
+  - Linux client: Reduced from ~350 lines to ~100 lines
+  - Eliminated ~80% code duplication across platforms
+  - Consistent CLI interface with `--config`, `--verbose`, `--version` options
+
+### Code Quality Improvements
+- **Type Safety**: Full type hints throughout Python codebase
+- **Configuration Validation**: Automatic validation of all config values
+- **Error Handling**: Consistent exception handling with helpful error messages
+- **Documentation**: Comprehensive docstrings for all public APIs
+- **Security**: Centralized security utilities with pattern detection
+
+### Developer Experience
+- Added unified `requirements.txt` for all desktop platforms
+- Simplified maintenance with single source of truth in base module
+- Easier testing with separated concerns
+- Better debugging with structured logging
+
+## [1.0.0] - 2026-03-04
 
 ### Added
 - Project initialization
