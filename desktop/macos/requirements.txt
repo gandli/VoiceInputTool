@@ -5,8 +5,5 @@ pyserial>=3.5
 pynput>=1.7.6
 pyperclip>=1.8.2
 
-# Optional: Use pyautogui as fallback (not needed if using pynput)
-# pyautogui>=0.9.53
-
 # Security and utility
-colorama>=0.4.6  # Colored output (optional)
+colorama>=0.4.6
