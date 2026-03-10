@@ -46,11 +46,26 @@ Phone Microphone → Real-time Speaker Separation → Local LLM Processing → I
 
 ## 📱 Platform Support
 
+VoiceInputTool now provides full cross-platform support for both Android and desktop operating systems.
+
+### Android Platform Support
 | Platform | Status | Technical Approach |
 |----------|--------|-------------------|
-| Android + Windows | In Development | USB Accessory Mode + Serial |
-| Android + macOS | Planned | USB Network Tethering + WebRTC |
-| Android + Linux | Planned | USB OTG + Serial |
+| Android 8.0+ | ✅ Production Ready | USBAccessory Mode + SpeechRecognizer API |
+| Android 10+ | ✅ Enhanced | Background service support + better permissions |
+
+### Desktop Platform Support
+| Desktop Platform | Status | Features |
+|------------------|--------|----------|
+| Windows 7+ | ✅ Production Ready | Unicode/Chinese support, auto-reconnect |
+| macOS 10.14+ | ✅ Production Ready | Cmd+V support, native integration |
+| Linux (Ubuntu 20.04+) | ✅ Production Ready | GPIO support, systemd service |
+
+### Cross-Platform Features
+- **Unified Security**: Input validation and encryption across all platforms
+- **Consistent UX**: Same interface on all supported platforms
+- **Config Sync**: Shared configuration format (JSON)
+- **Logging**: Centralized logging with rotation
 
 **Note**: iOS support is limited due to Apple's restrictions on USB audio functionality.
 

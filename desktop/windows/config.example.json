@@ -1,0 +1,19 @@
+{
+  "serial": {
+    "baudrate": 9600,
+    "timeout": 1,
+    "bytesize": 8,
+    "parity": "N",
+    "stopbits": 1,
+    "retry_interval": 2,
+    "max_retries": 0
+  },
+  "input": {
+    "type_interval": 0.01,
+    "enable_clipboard": true
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "voice_input_client.log"
+  }
+}
